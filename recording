@@ -1,0 +1,132 @@
+
+#include <pcmConfig.h>
+
+#include <SD.h>
+#define SD_ChipSelectPin 10
+#include <TMRpcm.h>
+#include <SPI.h>
+#include "pitches.h"
+
+#define Pin_Record 3
+
+TMRpcm audio;
+
+volatile byte FLAG_PLAY = LOW;
+volatile byte FLAG_RECORD = LOW;
+
+void Flag_PlaytoHigh( )
+{
+  FLAG_PLAY = HIGH;
+}
+void Flag_RecordtoHigh( )
+{
+  FLAG_RECORD = HIGH;
+}
+
+void setup(){
+attachInterrupt(digitalPinToInterrupt(Pin_Record), Flag_RecordtoHigh, CHANGE);
+  audio.speakerPin = 9;
+Serial.begin(9600);
+if (!SD.begin(10))//SD_ChipSelectPin))
+{
+      tone(9,NOTE_D4);
+    delay(400);
+      noTone(9);
+        tone(9,NOTE_D4);
+    delay(400);
+      noTone(9);
+        tone(9,NOTE_D4);
+    delay(400);
+      noTone(9);
+Serial.println("SD fail");
+return;
+}
+else
+{
+  Serial.println("SD Ready");
+    tone(9,NOTE_D4);
+    delay(400);
+    tone(9,NOTE_G4);
+    delay(400);
+    tone(9,NOTE_A4);
+    delay(400);   
+    tone(9,NOTE_C5);
+    delay(400);    
+    tone(9,NOTE_A4);
+    delay(400);    
+    tone(9,NOTE_G4);
+    delay(400);
+    noTone(9);
+  }
+
+audio.setVolume(5);
+audio.CSPin = 10;//SD_ChipSelectPin;
+//pinMode(7, OUTPUT);//for microphone power supply
+  delay(1000);
+//audio.play("8.wav");
+}
+
+void loop(){  
+
+       if(audio.isPlaying() == 0){
+        digitalWrite(9, LOW);
+       }
+
+    if (FLAG_RECORD == HIGH)
+{
+    FLAG_RECORD = LOW;
+  if (digitalRead(Pin_Record) == HIGH)
+  {
+    audio.pause();   
+    tone(9,NOTE_A4);
+    delay(600); 
+    noTone(9); 
+    delay(100);
+
+    digitalWrite(9, LOW);
+
+    audio.startRecording("rec.wav",8196,A0);   //Record at 16khz sample rate on pin A0
+        
+  }
+  if (digitalRead(Pin_Record) == LOW)
+  {
+
+    audio.stopRecording("rec.wav");
+    delay(600);
+    tone(9,NOTE_C4);
+    delay(300); 
+           if(audio.isPlaying() == 0)
+       {
+          audio.pause(); 
+       }
+    noTone(9); 
+    delay(600);
+  audio.play("rec.wav");
+
+  }   
+
+  
+/*
+ 
+  //play recording
+  if ((FLAG_PLAY == HIGH)&&(digitalRead(Pin_Play_In) == HIGH))
+  {
+      audio.stopRecording("Recording.wav");
+     FLAG_PLAY = LOW;  
+     digitalWrite(Pin_Loop_Out, digitalRead(Pin_Loop_In));
+     audio.play("Recording.wav");
+     delay(200);
+      digitalWrite(Pin_Play_Out, HIGH);
+      delay(100);
+      digitalWrite(Pin_Play_Out, LOW); 
+  } 
+  else
+  {   
+    digitalWrite(Pin_Play_Out, LOW);
+    FLAG_PLAY = LOW;   
+  }
+
+*/
+
+}
+}
