@@ -6,8 +6,16 @@
 #include <SPI.h>
 #include "pitches.h"
 
+/* 
+For the original prototype, it's 
 #define Pin_Record 3
 #define Pin_Play_In 2//Start to play
+I changed the pin arrangement here for clearer schematic.
+*/
+
+#define Pin_Record 2
+#define Pin_Play_In 3//Start to play
+
 #define Pin_Loop_In 4// Loop or not?
 #define Pin_Play_Out 5 //play signal out
 #define Pin_Loop_Out 6 //Loop signal out
