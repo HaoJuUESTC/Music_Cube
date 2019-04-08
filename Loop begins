@@ -1,0 +1,213 @@
+// Block_Loop_Begins
+// ver 20181227
+// Datasheet at https://www.engineersgarage.com/electronic-components/arduino-pro-mini-pinout
+// loop begins blocks
+
+#define Pin_Play_In_A 2 //Start to play
+#define Pin_Play_In_B 3
+#define Pin_Loop_In_A 4// Loop or not?
+#define Pin_Loop_In_B 5
+#define Pin_Play_Out 6 //play signal out
+#define Pin_Loop_Out 7 //Loop signal out
+//#define Pin_FLAG_PLAY 10//CHECK FLAG
+//#define Pin_FLAG_LOOPTIMES 11//CHECK FLAG
+#define Pin_Times A0//Read the U of the variable resistor
+
+volatile byte FLAG_PLAY_A =LOW;
+volatile byte FLAG_PLAY_B = LOW;
+volatile byte FLAG_LOOPTIMES = HIGH;
+
+volatile int loop_times; //times of loop
+
+int times_a,times_b, looptimes = 1;//a buffer variable to detect if there's been a change in the time of the loop
+int times_reading = 0;
+
+////------------------------------------------------------------------------
+void FLAG_PLAY_AtoHigh( )
+{
+  FLAG_PLAY_A = HIGH;
+}
+
+void FLAG_PLAY_BtoHigh( )
+{
+  FLAG_PLAY_B = HIGH;
+}
+
+int readlooptimes()
+{
+  //FLAG_LOOPTIMES = HIGH;
+  times_reading = analogRead(Pin_Times);//ideal reading: 0/1.25/2.5/3.75/5 V 
+ if (times_reading >= 850)// >4V (original 820)
+  looptimes = 5;
+  else if ((times_reading >= 615)&&(times_reading < 850)) // 3-4V
+  looptimes = 4;
+  else if ((times_reading >= 410)&&(times_reading < 615))// 2-3V
+  looptimes = 3;
+  else if ((times_reading >= 205)&&(times_reading < 410))// 1-2V
+  looptimes = 2;
+  else if ((times_reading >= 0)&&(times_reading < 205))// <1V
+ looptimes = 1;
+  return(looptimes);   
+}
+
+void playdetection()
+{
+    if((FLAG_PLAY_A == HIGH)||(FLAG_PLAY_B== HIGH))
+    {
+      
+Serial.print("-----------------------");  
+Serial.print("\n");
+Serial.print("FLAG_LOOPTIMES: ");      
+Serial.print(FLAG_LOOPTIMES);
+Serial.print("\n");
+if(FLAG_PLAY_A == HIGH){
+Serial.print("FLAG_PLAY_A: ");      
+Serial.print(FLAG_PLAY_A);
+Serial.print("\n");
+}
+if(FLAG_PLAY_B == HIGH) {
+Serial.print("FLAG_PLAY_B: ");      
+Serial.print(FLAG_PLAY_B);
+Serial.print("\n");
+    }
+
+      if (((FLAG_PLAY_A == HIGH)&&(digitalRead(Pin_Play_In_A) == HIGH))||(FLAG_LOOPTIMES == HIGH))
+      {
+        if (FLAG_PLAY_A == HIGH) {
+          Serial.print("FLAG_PLAY_A == HIGH");
+          Serial.print("\n");
+        }
+         if (FLAG_LOOPTIMES == HIGH) {
+          Serial.print("FLAG_LOOPTIMES == HIGH");
+          Serial.print("\n");
+        }
+        loop_times = readlooptimes( );
+        if (loop_times > 1)
+        {
+        digitalWrite(Pin_Loop_Out, HIGH); 
+        delay(100);
+        digitalWrite(Pin_Play_Out, HIGH); 
+        delay(100);
+        digitalWrite(Pin_Play_Out, LOW); 
+        }
+        else {
+        digitalWrite(Pin_Loop_Out, LOW); 
+        delay(100);
+        digitalWrite(Pin_Play_Out, HIGH); 
+        delay(100);
+        digitalWrite(Pin_Play_Out, LOW); 
+          }
+        FLAG_LOOPTIMES = LOW;
+        FLAG_PLAY_A = LOW;
+      }
+     else if ((FLAG_PLAY_B == HIGH)&&((digitalRead(Pin_Loop_In_A) == HIGH)||(digitalRead(Pin_Loop_In_B) == HIGH))&&(loop_times != 0))
+      {
+         //switch (loop_times) {
+           // case 5:
+           Serial.print("FLAG_PLAY_B == HIGH && Loop In == HIGH");Serial.print("\n");
+           Serial.print("FLAG_PLAY_B: ");Serial.print(FLAG_PLAY_B);Serial.print("\n");
+           Serial.print("digitalRead(Pin_Loop_In_A): ");Serial.print(digitalRead(Pin_Loop_In_A));Serial.print("\n");
+           Serial.print("digitalRead(Pin_Loop_In_B): ");Serial.print(digitalRead(Pin_Loop_In_B));Serial.print("\n");
+             if( loop_times == 5)
+             {
+             loop_times = 5;
+               digitalWrite(Pin_Loop_Out, HIGH); 
+               delay(100);
+               digitalWrite(Pin_Play_Out, HIGH); 
+               delay(100);
+               digitalWrite(Pin_Play_Out, LOW); 
+             }
+             else
+             {
+               if (loop_times > 1)
+                {
+                   loop_times = loop_times - 1;
+                   digitalWrite(Pin_Loop_Out, HIGH); 
+                   delay(100);
+                   digitalWrite(Pin_Play_Out, HIGH); 
+                   delay(100);
+                   digitalWrite(Pin_Play_Out, LOW); 
+                 }
+                 if(loop_times == 1)
+                 {
+                   loop_times = loop_times - 1;
+                   digitalWrite(Pin_Loop_Out, LOW); 
+                   delay(100);
+                   digitalWrite(Pin_Play_Out, HIGH); 
+                   delay(100);
+                   digitalWrite(Pin_Play_Out, LOW); 
+                 }
+                if (loop_times == 0)
+                {
+                   digitalWrite(Pin_Loop_Out, LOW); 
+                   digitalWrite(Pin_Play_Out, LOW); 
+                }
+         }
+               FLAG_PLAY_B = LOW;
+               FLAG_LOOPTIMES = LOW;
+      }
+      else
+      {       
+           Serial.print("FLAG_PLAY_B == HIGH && Loop In == LOW");Serial.print("\n");
+           digitalWrite(Pin_Loop_Out, LOW); 
+           digitalWrite(Pin_Play_Out, LOW); 
+      }    
+Serial.print("loop_times: ");    
+Serial.print(loop_times);
+Serial.print("---------------------------------------");
+Serial.print("\n");
+FLAG_PLAY_A = LOW;
+FLAG_PLAY_B = LOW;
+FLAG_LOOPTIMES = LOW;
+
+    }
+}
+
+void setup( ) 
+{
+  // put your setup code here, to run once:
+  pinMode(Pin_Play_In_A,INPUT);
+  pinMode(Pin_Play_In_B,INPUT);
+  pinMode(Pin_Loop_In_A,INPUT);
+  pinMode(Pin_Loop_In_B,INPUT);
+  pinMode(Pin_Times,INPUT);
+  pinMode(Pin_Play_Out,OUTPUT);
+  pinMode(Pin_Loop_Out,OUTPUT);
+  
+  digitalWrite(Pin_Play_Out,LOW);
+  digitalWrite(Pin_Loop_Out,LOW);
+
+  FLAG_PLAY_A = LOW;
+  FLAG_PLAY_B = LOW;
+  FLAG_LOOPTIMES = HIGH;
+     
+   attachInterrupt(digitalPinToInterrupt(Pin_Play_In_A), FLAG_PLAY_AtoHigh, RISING);
+   attachInterrupt(digitalPinToInterrupt(Pin_Play_In_B), FLAG_PLAY_BtoHigh, RISING);
+  // Serial.begin(9600);
+   loop_times = readlooptimes();   
+}
+
+void loop() 
+{
+     // if there has been a change in the reading of the times of the loop, set FLAG_LOOPTIMES = HIGH, and read the times of the loop again
+   times_a = readlooptimes();
+   Serial.print("times_a: ");
+   Serial.print(times_a);
+   Serial.print("\n");
+    if ((times_b != times_a)&&(FLAG_LOOPTIMES == LOW))
+   {
+      FLAG_LOOPTIMES = HIGH;
+   }
+
+  playdetection( );
+
+    times_b = readlooptimes();
+   if ((times_a != times_a)&&(FLAG_LOOPTIMES == LOW))
+   {
+      FLAG_LOOPTIMES = HIGH;
+   }  
+  Serial.print("times_b: ");
+   Serial.print(times_b);
+   Serial.print("\n\n\n");
+
+}
