@@ -1,0 +1,47 @@
+//Block Loop Ends
+
+#define Pin_Play_In 2//Start to play
+#define Pin_Loop_In 3// Loop or not?
+#define Pin_Play_Out 4 //play signal out
+#define Pin_Loop_Out 5 //Loop signal out
+
+volatile byte FLAG_PLAY = LOW;
+
+void FLAG_PLAYtoHigh( )
+{
+  FLAG_PLAY = HIGH;
+}
+
+void setup() {
+  pinMode(Pin_Play_In,INPUT);
+  pinMode(Pin_Loop_In,INPUT);
+  pinMode(Pin_Play_Out,OUTPUT);
+  pinMode(Pin_Loop_Out,OUTPUT);
+  
+  digitalWrite(Pin_Play_Out,LOW);
+  digitalWrite(Pin_Loop_Out,LOW);
+  FLAG_PLAY = LOW;
+     
+   attachInterrupt(digitalPinToInterrupt(Pin_Play_In), FLAG_PLAYtoHigh, RISING);
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+  if((FLAG_PLAY == HIGH) && (digitalRead(Pin_Loop_In) == LOW))
+  {
+          digitalWrite(Pin_Loop_Out, LOW); 
+          delay(100);
+          digitalWrite(Pin_Play_Out, HIGH); 
+          delay(100);
+            FLAG_PLAY = LOW;
+          digitalWrite(Pin_Play_Out, LOW);   
+          
+  }
+  else
+  {
+    digitalWrite(Pin_Play_Out,LOW);
+    digitalWrite(Pin_Loop_Out,LOW);
+  }
+  
+
+}
