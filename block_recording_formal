@@ -20,6 +20,20 @@ I changed the pin arrangement here for clearer schematic.
 #define Pin_Play_Out 5 //play signal out
 #define Pin_Loop_Out 6 //Loop signal out
 
+/*
+Arduino  ---------> SD Card
+
+12 -------------------> MISO
+
+11 -------------------->MOSI
+
+13 -------------------->SCK
+
+10 ---------------------->CS
+
+9 ---------------------->Speaker
+ */
+
 
 TMRpcm audio;
 
