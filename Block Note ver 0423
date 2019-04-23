@@ -1,5 +1,5 @@
 // Block Note
-// ver 20100423 by Hao Ju
+// ver 20181015 by Hao Ju
 // Datasheet at https://www.engineersgarage.com/electronic-components/arduino-pro-mini-pinout
 // note/pause blocks
 
@@ -40,20 +40,21 @@ void FlagtoHigh( )
 
 void note_detection( )
 {
-    Serial.print("------------------");
+   /* Serial.print("------------------");
      Serial.print("\n");
     Serial.print("Note detection begins");
     Serial.print("\n");
     Serial.print("Pin Play In:");
      Serial.print(digitalRead(Pin_Play_In));
     Serial.print("\n");
-    
+   */ 
   if ((FLAG == HIGH)&&(digitalRead(Pin_Play_In) == HIGH))
  {
       FLAG = LOW;  
       duration = analogRead(Pin_Read_Voltage)+100;// duration: the duration of the tone in milliseconds (optional) - unsigned long. Ranges from 0 to 1023. Could be modified later.
-    Serial.print("Play signal detected");
+ /*   Serial.print("Play signal detected");
     Serial.print("\n");
+    */
       tone(Pin_Buzzzer_Out,NOTE_C4); //Note to be defined here!!!
       delay(duration);
         digitalWrite(Pin_Loop_Out, digitalRead(Pin_Loop_In));// I wrote it here for  more accurate result in the next cube...
@@ -68,10 +69,12 @@ void note_detection( )
     digitalWrite(Pin_Play_Out, LOW);
     digitalWrite(Pin_Loop_Out, LOW); 
   }
-    Serial.print("Note detection ends");
+  /*  Serial.print("Note detection ends");
      Serial.print("------------------");
     Serial.print("\n");
-}/*
+    */
+}
+/*
 {
   attachInterrupt(digitalPinToInterrupt(Pin_Play_In), FlagtoHigh, RISING);//While there's a change in the PLAY signal(Pin_Play_In), switch flag to 1
   delay(50);//to avoid possible mis-attachement in the button
@@ -121,16 +124,21 @@ void setup( )
   FLAG = LOW;
   
   attachInterrupt(digitalPinToInterrupt(Pin_Play_In), FlagtoHigh, RISING);//While there's a change in the PLAY signal(Pin_Play_In), switch flag to 1
-  Serial.begin(9600);
+  //Serial.begin(9600);
 }
 
 void loop() 
 {
-  
-  if(((analogRead(Pin_Read_Voltage)>900)||(analogRead(Pin_Read_Voltage)<5))&&(FLAG_ALARM == HIGH)&&(FLAG == LOW))
+
+    /*  Serial.print(analogRead(Pin_Read_Voltage));
+      Serial.print("\n");
+      Serial.print(FLAG_ALARM);
+      Serial.print("\n");
+      */
+  if(((analogRead(Pin_Read_Voltage)>900)||(analogRead(Pin_Read_Voltage)<5))&&(FLAG_ALARM == HIGH))//&&(FLAG = LOW))
   {
-    Serial.print("Alarm activated");
-        Serial.print("\n");
+  //  Serial.print("Alarm activated");
+    //    Serial.print("\n");
     tone(Pin_Buzzzer_Out,NOTE_C4);
     delay(analogRead(Pin_Read_Voltage)+100);
     noTone(Pin_Buzzzer_Out);
