@@ -10,8 +10,7 @@
 #define Pin_Play_Out 4 //play signal out
 #define Pin_Loop_Out 5 //Loop signal out
 #define Pin_Buzzzer_Out 6//operates the buzzer
-#define Pin_Read_Voltage A0//Read the U of the variable res istor
-;
+#define Pin_Read_Voltage A0//Read the U of the variable resistor
 //volatile byte PLAY = LOW;
 volatile byte FLAG = LOW;
 boolean FLAG_ALARM = LOW;
